@@ -99,7 +99,7 @@ Gemini must return exactly this shape. The server stores all of it; the browser 
 - Every evidence `type` is one of `chat`, `cctv`, `photo`, `call_log`, `note`.
 - All 5 evidence types appear at least once.
 - Exactly 3 hints.
-- The culprit's name (any part, whole word, ignoring titles like "Mr.") does not appear in the story, any evidence title, or the first hint.
+- The culprit's name (any part, whole word, ignoring titles like "Mr.") does not appear in the story, any evidence title, or the first hint. Before checking, any evidence title that names a suspect is replaced with a neutral one for its type (e.g. "Phone call records"), so a named title is repaired rather than rejected.
 - Call log `direction` is one of `incoming`, `outgoing`, `missed`.
 
 ## 4. Gemini call

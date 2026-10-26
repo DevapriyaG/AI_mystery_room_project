@@ -53,6 +53,7 @@ Rules:
 - At least 2 evidence items point to the real culprit; at least 1 is a misleading red herring.
 - A careful player must be able to find the culprit from the evidence alone.
 - Never name the culprit in the story, evidence titles, or the first hint.
+- Evidence titles describe the item only and never contain a person's name (write "Phone records", not "Clara's phone").
 - Keep it PG-13: no graphic violence, no sexual content, no real people.
 - In call logs, "direction" is exactly one of "incoming", "outgoing" or "missed".
 Return ONLY JSON in this exact format:
@@ -76,6 +77,30 @@ function mentionsName(text, name) {
     .map((part) => part.replace(/[.,]/g, ''))
     .filter((part) => part.length > 2 && !HONORIFICS.test(part));
   return parts.some((part) => new RegExp(`\\b${escapeRegExp(part)}\\b`, 'i').test(text));
+}
+
+const NEUTRAL_TITLES = {
+  chat: 'Text messages',
+  cctv: 'Security camera footage',
+  photo: 'Evidence photo',
+  call_log: 'Phone call records',
+  note: 'Handwritten note',
+};
+
+// Gemini often titles evidence after a person ("Clara's phone"). Rather than reject the whole mystery,
+// swap in a neutral title whenever ANY suspect is named, so the changed titles don't single out the culprit.
+export function neutralizeTitles(data) {
+  if (!Array.isArray(data?.suspects) || !Array.isArray(data?.evidence)) return;
+  const names = data.suspects.map((s) => s?.name).filter(isText);
+  const used = new Map();
+  for (const item of data.evidence) {
+    if (!item || !isText(item.title) || !NEUTRAL_TITLES[item.type]) continue;
+    if (!names.some((name) => mentionsName(item.title, name))) continue;
+    const base = item.type === 'cctv' && isText(item.camera) ? `Footage: ${item.camera}` : NEUTRAL_TITLES[item.type];
+    const count = (used.get(base) || 0) + 1;
+    used.set(base, count);
+    item.title = count > 1 ? `${base} (${count})` : base;
+  }
 }
 
 function checkEvidenceFields(item) {
@@ -213,6 +238,7 @@ export async function generateMystery(rawScenario) {
       continue;
     }
 
+    neutralizeTitles(data);
     const problems = validateMystery(data);
     if (problems.length === 0) return data;
     console.warn(`Attempt ${attempt}: mystery failed checks:`, problems.join('; '));
