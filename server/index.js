@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
+import mysteriesRouter from './routes/mysteries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env'), quiet: true });
@@ -21,6 +22,8 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true });
 });
 
+app.use('/api/mysteries', mysteriesRouter);
+
 // Unknown API routes get a JSON 404 instead of the React app
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Not found' });
@@ -34,8 +37,10 @@ app.get(/^(?!\/api).*/, (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({ error: err.expose ? err.message : 'Something went wrong' });
+  const status = err.status || 500;
+  if (status >= 500) console.error(err);
+  if (err.type === 'entity.parse.failed') return res.status(400).json({ error: 'Invalid JSON' });
+  res.status(status).json({ error: err.expose ? err.message : 'Something went wrong' });
 });
 
 const port = process.env.PORT || 3001;
