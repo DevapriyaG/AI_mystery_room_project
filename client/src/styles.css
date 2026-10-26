@@ -835,6 +835,24 @@ button {
   white-space: pre-wrap;
 }
 
+/* ---------- Footer ---------- */
+
+.site-footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0 1rem 1.5rem;
+}
+
+.site-footer a {
+  color: var(--text-muted);
+  text-decoration-color: var(--border);
+}
+
+.site-footer a:hover {
+  color: var(--accent);
+}
+
 /* ---------- Small screens ---------- */
 
 @media (max-width: 600px) {

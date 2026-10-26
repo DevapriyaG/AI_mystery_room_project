@@ -13,10 +13,16 @@ function NotFound() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/mystery/:id" element={<MysteryPage />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/mystery/:id" element={<MysteryPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <footer className="site-footer">
+        Created by{' '}
+        <a href="https://github.com/DevapriyaG" target="_blank" rel="noopener noreferrer">DevapriyaG</a>
+      </footer>
+    </>
   );
 }
