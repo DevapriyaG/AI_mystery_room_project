@@ -69,7 +69,11 @@ npm install --prefix client
 
 ### 2. Configure
 
-Create a `.env` file in the project root. It is listed in `.gitignore`, so don't commit it.
+Copy `.env.example` to `.env` in the project root and fill in your values. `.env` is listed in `.gitignore`, so don't commit it.
+
+```bash
+cp .env.example .env
+```
 
 ```env
 GEMINI_API_KEY=your-gemini-api-key
