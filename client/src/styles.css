@@ -38,6 +38,18 @@ body {
   font-family: var(--font-body);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip; /* the tilted crime tape pokes past the edges */
+}
+
+/* Faint film grain over the whole page; pointer-events off so it never blocks clicks */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 body.modal-open {
@@ -219,21 +231,133 @@ button {
   }
 }
 
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* ---------- Brand & stamps ---------- */
+
+.brand {
+  font-size: clamp(2.6rem, 9vw, 4.2rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-shadow: 0 0 24px rgba(212, 162, 76, 0.25);
+  margin-bottom: 0.75rem;
+}
+
+.brand-ai {
+  display: inline-block;
+  font-size: 0.55em;
+  color: var(--danger);
+  border: 3px solid var(--danger);
+  border-radius: 6px;
+  padding: 0 0.25em;
+  vertical-align: middle;
+  transform: rotate(-8deg);
+  text-shadow: none;
+}
+
+.stamp {
+  display: inline-block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--danger);
+  border: 3px double var(--danger);
+  border-radius: 6px;
+  padding: 0.2rem 0.7rem;
+  opacity: 0.85;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    transform: scale(2.2) rotate(-12deg);
+  }
+}
+
 /* ---------- Home ---------- */
+
+.crime-tape {
+  overflow: hidden;
+  white-space: nowrap;
+  background: repeating-linear-gradient(-45deg, #f2c230 0 28px, #e0b020 28px 56px);
+  color: #111;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  padding: 0.45rem 0;
+  border-block: 3px solid #111;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  transform: rotate(-1.5deg) scaleX(1.05);
+  margin-top: 1.5rem;
+}
+
+.crime-tape span {
+  display: inline-block;
+  animation: tape-scroll 40s linear infinite;
+}
+
+@keyframes tape-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
 
 .home {
   max-width: 720px;
-  padding-top: 4rem;
+  padding-top: 3rem;
 }
 
 .home-header {
   text-align: center;
   margin-bottom: 2rem;
+  animation: fade-up 0.6s ease-out both;
 }
 
 .pitch {
   font-size: 1.15rem;
   color: var(--text-muted);
+}
+
+.steps {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.steps span {
+  font-family: var(--font-display);
+  color: var(--accent);
+  margin-right: 0.3rem;
+}
+
+.scenario-form {
+  position: relative;
+  animation: fade-up 0.6s 0.15s ease-out both;
+}
+
+.form-stamp {
+  position: absolute;
+  top: 0.9rem;
+  right: 1.1rem;
+  font-size: 0.85rem;
+}
+
+.status-step {
+  animation: fade-up 0.4s ease-out;
 }
 
 .scenario-form label {
@@ -297,7 +421,11 @@ button {
 /* ---------- Mystery page ---------- */
 
 .top-nav {
-  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .top-nav a {
@@ -309,8 +437,61 @@ button {
   color: var(--accent);
 }
 
+.top-nav .brand-link {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+
+.top-nav .brand-ai {
+  border-width: 2px;
+}
+
+/* Manila case folder with a tab on top */
 .case-header {
-  border-left: 4px solid var(--accent);
+  position: relative;
+  margin-top: 1.4rem;
+  background: linear-gradient(180deg, #2c241a, var(--bg-raised));
+  border-color: #4a3c2a;
+  border-top-left-radius: 0;
+  animation: fade-up 0.5s ease-out both;
+}
+
+.case-header::before {
+  content: 'CONFIDENTIAL';
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  background: #2c241a;
+  border: 1px solid #4a3c2a;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 0.25rem 1rem;
+}
+
+.case-header h1 {
+  padding-right: 6rem;
+}
+
+.case-stamp {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  font-size: 1.1rem;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.case-stamp.is-closed {
+  color: var(--danger);
+  border-color: var(--danger);
+  animation: stamp-in 0.35s cubic-bezier(0.3, 1.6, 0.6, 1) both;
 }
 
 .story {
@@ -331,6 +512,55 @@ button {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.1rem;
+}
+
+.grid > .card {
+  animation: fade-up 0.45s ease-out both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* Mugshot backdrop with height-chart lines */
+.mugshot {
+  position: relative;
+  height: 96px;
+  margin: -1.1rem -1.1rem 0.9rem;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 15px, rgba(236, 228, 214, 0.12) 15px 16px),
+    linear-gradient(180deg, #3a342d, #24201c);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mugshot-initials {
+  width: 64px;
+  height: 72px;
+  border-radius: 32px 32px 0 0;
+  background: #14110f;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mugshot-number {
+  position: absolute;
+  bottom: 0.4rem;
+  right: 0.6rem;
+  background: #0d0b0a;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+}
+
+.suspect-card.is-culprit .mugshot-initials {
+  color: var(--danger);
 }
 
 .suspect-card h3 {
@@ -374,6 +604,19 @@ button {
 .evidence-card.is-key {
   border-color: var(--accent-strong);
   box-shadow: 0 0 0 1px var(--accent-strong), 0 0 18px rgba(232, 184, 96, 0.25);
+}
+
+.exhibit-label {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: #1a140c;
+  background: var(--paper);
+  padding: 0.1rem 0.45rem;
+  transform: rotate(3deg);
 }
 
 .evidence-icon {
@@ -465,22 +708,33 @@ button {
   font-size: 0.85rem;
 }
 
-.banner {
-  font-family: var(--font-display);
-  font-size: 1.6rem;
+.banner-wrap {
   text-align: center;
-  padding: 1rem;
+  margin: 0.5rem 0 1.5rem;
+}
+
+/* Verdict lands like a rubber stamp */
+.banner {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.4rem 1.4rem;
+  border: 4px double currentColor;
   border-radius: 8px;
-  margin-bottom: 1.25rem;
-  color: #fff;
+  transform: rotate(-4deg);
+  animation: stamp-in 0.4s cubic-bezier(0.3, 1.6, 0.6, 1) both;
 }
 
 .banner-success {
-  background: var(--success);
+  color: var(--success);
+  background: rgba(76, 175, 114, 0.1);
 }
 
 .banner-fail {
-  background: var(--danger);
+  color: var(--danger);
+  background: rgba(208, 83, 63, 0.1);
 }
 
 .result h3 {
@@ -862,6 +1116,24 @@ button {
 
   .home {
     padding-top: 2rem;
+  }
+
+  .crime-tape {
+    font-size: 0.8rem;
+  }
+
+  .form-stamp {
+    display: none;
+  }
+
+  .case-header h1 {
+    padding-right: 0;
+  }
+
+  .case-stamp {
+    position: static;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
   }
 
   .panel {

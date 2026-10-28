@@ -1,4 +1,4 @@
-# AI Mystery Room
+# Cold Case AI
 
 Type a scenario, and Gemini writes a whodunit for you to solve. You get a short story, 3–4 suspects and 6–8 pieces of evidence: chats, CCTV stills, photos, call logs and notes. Read through it, take up to 3 hints, then accuse a suspect. Once you've accused, the game tells you if you were right and explains how the evidence proves who did it.
 

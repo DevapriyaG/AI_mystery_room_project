@@ -17,6 +17,14 @@ const EVIDENCE_KINDS = {
   note: { icon: '📝', label: 'Note', Viewer: NoteEvidence },
 };
 
+// "Dr. Maya Chen" -> "MC", skipping titles so the mugshot shows real initials
+function initials(name) {
+  const parts = name
+    .split(/\s+/)
+    .filter((part) => part && !/^(mr|mrs|ms|miss|dr|prof)\.?$/i.test(part));
+  return parts.slice(0, 2).map((part) => part[0].toUpperCase()).join('') || '?';
+}
+
 function EvidenceModal({ item, isKey, onClose }) {
   const closeRef = useRef(null);
   const kind = EVIDENCE_KINDS[item.type];
@@ -80,7 +88,7 @@ export default function MysteryPage() {
       .then((data) => {
         if (cancelled) return;
         setMystery(data);
-        document.title = `${data.title} · AI Mystery Room`;
+        document.title = `${data.title} · Cold Case AI`;
       })
       .catch((err) => !cancelled && setLoadError(err.message));
     return () => {
@@ -161,11 +169,15 @@ export default function MysteryPage() {
   return (
     <main className="page mystery">
       <nav className="top-nav">
-        <Link to="/">← New mystery</Link>
+        <Link to="/" className="brand-link">Cold Case <span className="brand-ai">AI</span></Link>
+        <Link to="/">+ New case</Link>
       </nav>
 
       <header className="panel case-header">
-        <p className="eyebrow">Case file</p>
+        <span className={`stamp case-stamp${solved ? ' is-closed' : ''}`} aria-hidden="true">
+          {solved ? 'Closed' : 'Open'}
+        </span>
+        <p className="eyebrow">Case file · No. {mystery.id.slice(-6).toUpperCase()}</p>
         <h1>{mystery.title}</h1>
         <p className="story">{mystery.story}</p>
         <p className="question">{mystery.question}</p>
@@ -174,8 +186,16 @@ export default function MysteryPage() {
       <section aria-labelledby="suspects-heading">
         <h2 id="suspects-heading" className="section-title">Suspects</h2>
         <div className="grid">
-          {mystery.suspects.map((s) => (
-            <article key={s.id} className={`card suspect-card${culprit?.id === s.id ? ' is-culprit' : ''}`}>
+          {mystery.suspects.map((s, i) => (
+            <article
+              key={s.id}
+              className={`card suspect-card${culprit?.id === s.id ? ' is-culprit' : ''}`}
+              style={{ '--i': i }}
+            >
+              <div className="mugshot" aria-hidden="true">
+                <span className="mugshot-initials">{initials(s.name)}</span>
+                <span className="mugshot-number">#{i + 1}</span>
+              </div>
               <h3>{s.name}</h3>
               <p className="role">{s.role}</p>
               <p><strong>Alibi:</strong> {s.alibi}</p>
@@ -189,15 +209,17 @@ export default function MysteryPage() {
       <section aria-labelledby="evidence-heading">
         <h2 id="evidence-heading" className="section-title">Evidence</h2>
         <div className="grid">
-          {mystery.evidence.map((item) => {
+          {mystery.evidence.map((item, i) => {
             const kind = EVIDENCE_KINDS[item.type];
             return (
               <button
                 key={item.id}
                 type="button"
                 className={`card evidence-card${keyIds.has(item.id) ? ' is-key' : ''}`}
+                style={{ '--i': i }}
                 onClick={() => setOpenEvidenceId(item.id)}
               >
+                <span className="exhibit-label">Exhibit {String.fromCharCode(65 + i)}</span>
                 <span className="evidence-icon" aria-hidden="true">{kind.icon}</span>
                 <span className="evidence-type">{kind.label}</span>
                 <span className="evidence-title">{item.title}</span>
@@ -255,8 +277,10 @@ export default function MysteryPage() {
 
       {solved && (
         <section className="panel result" aria-live="polite">
-          <div className={`banner ${accusation.correct ? 'banner-success' : 'banner-fail'}`}>
-            {accusation.correct ? 'Case solved!' : 'Wrong suspect'}
+          <div className="banner-wrap">
+            <div className={`banner ${accusation.correct ? 'banner-success' : 'banner-fail'}`}>
+              {accusation.correct ? 'Case solved!' : 'Wrong suspect'}
+            </div>
           </div>
           {!accusation.correct && accused && (
             <p>You accused <strong>{accused.name}</strong>.</p>
